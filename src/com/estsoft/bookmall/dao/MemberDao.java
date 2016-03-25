@@ -4,9 +4,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.estsoft.bookmall.vo.CartVO;
+import com.estsoft.bookmall.vo.MemberVO;
 
-public class CartDao {
+public class MemberDao {
 	private Connection getConnection() throws SQLException{
 		Connection conn = null;
 
@@ -25,8 +25,8 @@ public class CartDao {
 		return conn;
 	}
 	
-	public List<CartVO> getList(){
-		List<CartVO> list = new ArrayList<CartVO>();
+	public List<MemberVO> getList(){
+		List<MemberVO> list = new ArrayList<MemberVO>();
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -35,16 +35,19 @@ public class CartDao {
 			conn = getConnection();
 			stmt = conn.createStatement();
 			
-			String sql = "SELECT customer_no, book_no, count FROM cart";
+			String sql = "SELECT no, name, phone, email, password FROM member";
 			rs = stmt.executeQuery(sql);
 			
 			while(rs.next()){
-				Long customer_no = rs.getLong(1);
-				Long book_no = rs.getLong(2);
-				Long count = rs.getLong(3);
+				Long no = rs.getLong(1);
+				String name = rs.getString(2);
+				String phone = rs.getString(3);
+				String email = rs.getString(4);
+				String password = rs.getString(5);
 				
-				CartVO cartVo = new CartVO(customer_no, book_no, count);	
-				list.add(cartVo);
+				
+				MemberVO memberVo = new MemberVO(no, name, phone, email, password);	
+				list.add(memberVo);
 			}
 			
 		}catch(SQLException ex){
@@ -62,7 +65,7 @@ public class CartDao {
 		return list;
 	}
 	
-	public void insert(CartVO cartVo) {
+	public void insert(MemberVO memberVo) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		try {
@@ -70,13 +73,14 @@ public class CartDao {
 			conn = getConnection();
 
 			// 3. Statement 준비 - 값이 binding 된다.
-			String sql = "insert into cart values(?,?,?)";	// 고객번호, 서적번호, 수량
+			String sql = "insert into member values(null,?,?,?,?)";	// 번호,이름,전화번호,이메일,비밀번호
 			pstmt = conn.prepareStatement(sql);
 
 			// 4. bind
-			pstmt.setLong(1, cartVo.getCustomer_no());
-			pstmt.setLong(2, cartVo.getBook_no());
-			pstmt.setLong(3, cartVo.getCount());
+			pstmt.setString(1, memberVo.getName());
+			pstmt.setString(2, memberVo.getPhone());
+			pstmt.setString(3, memberVo.getEmail());
+			pstmt.setString(4, memberVo.getPassword());
 			
 			pstmt.executeUpdate();
 
